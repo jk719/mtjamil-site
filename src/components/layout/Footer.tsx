@@ -12,21 +12,21 @@ export default function Footer() {
   const currentYear = new Date().getFullYear();
 
   return (
-    <footer className="border-t border-neutral-200 bg-neutral-50">
-      <div className="mx-auto max-w-6xl px-6 py-12 lg:px-8">
-        <div className="flex flex-col items-center justify-between gap-8 md:flex-row md:items-center">
+    <footer className="border-t border-neutral-200 bg-neutral-50/80">
+      <div className="mx-auto max-w-5xl px-5 py-10 sm:px-6 lg:px-8">
+        <div className="flex flex-col items-center justify-between gap-6 sm:flex-row sm:items-center">
           <Link
             href="/"
-            className="text-sm font-semibold tracking-tight text-neutral-900 transition-opacity hover:opacity-80"
+            className="text-[13px] font-semibold tracking-tight text-neutral-900 transition-opacity hover:opacity-70"
           >
             mtjamil.com
           </Link>
-          <ul className="flex flex-wrap items-center justify-center gap-6">
+          <ul className="flex flex-wrap items-center justify-center gap-6 sm:gap-8">
             {footerLinks.map(({ href, label }) => (
               <li key={href}>
                 <Link
                   href={href}
-                  className="text-sm text-neutral-500 transition-colors hover:text-neutral-900"
+                  className="text-[13px] text-neutral-500 transition-colors hover:text-neutral-900"
                 >
                   {label}
                 </Link>
@@ -34,7 +34,7 @@ export default function Footer() {
             ))}
           </ul>
         </div>
-        <p className="mt-8 text-center text-sm text-neutral-400 md:mt-12">
+        <p className="mt-8 text-center text-[12px] text-neutral-400 sm:mt-10">
           © {currentYear} mtjamil.com. SAT Math tutoring.
         </p>
       </div>
