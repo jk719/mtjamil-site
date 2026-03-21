@@ -65,11 +65,13 @@ export default function Whiteboard() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const pointsRef = useRef<Point[]>([]); // Use ref for performance during drawing
+  const strokesRef = useRef<Stroke[]>([]); // Ref for resize handler to avoid recreating observer
   const [strokes, setStrokes] = useState<Stroke[]>([]);
   const [currentStroke, setCurrentStroke] = useState<Stroke | null>(null);
   const [isDrawing, setIsDrawing] = useState(false);
   const [tool, setTool] = useState<"pen" | "eraser">("pen");
   const [strokeWidth, setStrokeWidth] = useState(2);
+  // Default stroke color matches --foreground CSS variable
   const [strokeColor, setStrokeColor] = useState("#171717");
   const [history, setHistory] = useState<Stroke[][]>([[]]);
   const [historyIndex, setHistoryIndex] = useState(0);
@@ -148,10 +150,16 @@ export default function Whiteboard() {
     drawStrokes(ctx, allStrokes);
   }, [strokes, currentStroke, drawStrokes]);
 
+  // Keep strokesRef in sync with strokes state
+  useEffect(() => {
+    strokesRef.current = strokes;
+  }, [strokes]);
+
   useEffect(() => {
     redraw();
   }, [redraw]);
 
+  // Resize handler uses ref to avoid recreating observer on every stroke change
   const resizeCanvas = useCallback(() => {
     const canvas = canvasRef.current;
     const container = containerRef.current;
@@ -168,10 +176,11 @@ export default function Whiteboard() {
     const ctx = canvas.getContext("2d");
     if (ctx) {
       ctx.scale(dpr, dpr);
-      drawStrokes(ctx, strokes);
+      drawStrokes(ctx, strokesRef.current);
     }
-  }, [strokes, drawStrokes]);
+  }, [drawStrokes]);
 
+  // ResizeObserver only created once on mount
   useEffect(() => {
     resizeCanvas();
     const observer = new ResizeObserver(resizeCanvas);
@@ -182,14 +191,17 @@ export default function Whiteboard() {
   }, [resizeCanvas]);
 
   const saveToHistory = useCallback((newStrokes: Stroke[]) => {
-    setHistory((prev) => {
-      // Truncate any future history and add new state
-      const newHistory = prev.slice(0, historyIndex + 1);
-      newHistory.push(newStrokes);
-      return newHistory;
+    // Use functional updates to avoid stale closure issues
+    setHistoryIndex((currentIndex) => {
+      setHistory((prev) => {
+        // Truncate any future history and add new state
+        const newHistory = prev.slice(0, currentIndex + 1);
+        newHistory.push(newStrokes);
+        return newHistory;
+      });
+      return currentIndex + 1;
     });
-    setHistoryIndex((prev) => prev + 1);
-  }, [historyIndex]);
+  }, []);
 
   const handlePointerDown = (e: React.PointerEvent) => {
     e.preventDefault();
@@ -353,11 +365,14 @@ export default function Whiteboard() {
             onChange={(e) => setStrokeColor(e.target.value)}
             className="h-9 w-9 cursor-pointer rounded-lg border border-neutral-200 p-0.5"
             disabled={tool === "eraser"}
+            aria-label="Stroke color"
+            title="Stroke color"
           />
           <select
             value={strokeWidth}
             onChange={(e) => setStrokeWidth(Number(e.target.value))}
             className="rounded-lg border border-neutral-200 bg-white px-3 py-2 text-sm text-neutral-700"
+            aria-label="Stroke width"
           >
             <option value={1}>Thin</option>
             <option value={2}>Medium</option>
@@ -367,7 +382,7 @@ export default function Whiteboard() {
             type="button"
             onClick={handleUndo}
             disabled={!canUndo}
-            className="flex items-center gap-2 rounded-lg px-4 py-2.5 text-sm font-medium text-neutral-600 transition-all duration-200 hover:scale-105 hover:bg-neutral-100 active:scale-95 disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:scale-100"
+            className="group flex items-center gap-2 rounded-lg px-4 py-2.5 text-sm font-medium text-neutral-600 transition-all duration-200 hover:scale-105 hover:bg-neutral-100 active:scale-95 disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:scale-100 disabled:hover:bg-transparent"
           >
             <UndoIcon />
             Undo
@@ -376,7 +391,7 @@ export default function Whiteboard() {
             type="button"
             onClick={handleRedo}
             disabled={!canRedo}
-            className="flex items-center gap-2 rounded-lg px-4 py-2.5 text-sm font-medium text-neutral-600 transition-all duration-200 hover:scale-105 hover:bg-neutral-100 active:scale-95 disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:scale-100"
+            className="group flex items-center gap-2 rounded-lg px-4 py-2.5 text-sm font-medium text-neutral-600 transition-all duration-200 hover:scale-105 hover:bg-neutral-100 active:scale-95 disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:scale-100 disabled:hover:bg-transparent"
           >
             <RedoIcon />
             Redo
@@ -384,7 +399,7 @@ export default function Whiteboard() {
           <button
             type="button"
             onClick={handleClear}
-            className="flex items-center gap-2 rounded-lg px-4 py-2.5 text-sm font-medium text-neutral-600 transition-all duration-200 hover:scale-105 hover:bg-neutral-100 active:scale-95"
+            className="group flex items-center gap-2 rounded-lg px-4 py-2.5 text-sm font-medium text-neutral-600 transition-all duration-200 hover:scale-105 hover:bg-neutral-100 active:scale-95"
           >
             <TrashIcon />
             Clear

@@ -1,12 +1,5 @@
 import Link from "next/link";
-
-const footerLinks = [
-  { href: "/classes", label: "Classes" },
-  { href: "/one-on-one", label: "One-on-One" },
-  { href: "/lessons", label: "Lessons" },
-  { href: "/about", label: "About" },
-  { href: "/contact", label: "Contact" },
-];
+import { footerLinks } from "@/config/navigation";
 
 export default function Footer() {
   const currentYear = new Date().getFullYear();
@@ -34,7 +27,7 @@ export default function Footer() {
             ))}
           </ul>
         </div>
-        <p className="mt-8 text-center text-[12px] text-neutral-400 sm:mt-10">
+        <p className="mt-8 text-center text-xs text-neutral-400 sm:mt-10">
           © {currentYear} mtjamil.com. SAT Math tutoring.
         </p>
       </div>

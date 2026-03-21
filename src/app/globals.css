@@ -1,5 +1,18 @@
 @import "tailwindcss";
 
+/*
+ * Typography Scale (custom pixel values for fine-tuning):
+ * - text-xs (12px): Footer copyright
+ * - text-[13px]: Navigation links, footer links
+ * - text-sm (14px): Standard body text
+ * - text-[15px]: Buttons, CTAs
+ * - text-[17px]: Brand text, emphasized body
+ * - text-[19px]: Hero subheading (md breakpoint)
+ *
+ * These custom sizes provide precise typographic control
+ * between Tailwind's standard scale.
+ */
+
 :root {
   --background: #ffffff;
   --foreground: #171717;

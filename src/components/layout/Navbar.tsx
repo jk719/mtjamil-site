@@ -2,16 +2,7 @@
 
 import Link from "next/link";
 import { useState } from "react";
-
-const navLinks = [
-  { href: "/", label: "Home" },
-  { href: "/classes", label: "Classes" },
-  { href: "/one-on-one", label: "One-on-One" },
-  { href: "/lessons", label: "Lessons" },
-  { href: "/whiteboard", label: "Whiteboard" },
-  { href: "/about", label: "About" },
-  { href: "/contact", label: "Contact" },
-];
+import { navLinks } from "@/config/navigation";
 
 export default function Navbar() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
